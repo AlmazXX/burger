@@ -1,5 +1,5 @@
 import React from "react";
-import '../Burger.css';
+import './Burger.css';
 
 interface Props extends React.PropsWithChildren {}
 
