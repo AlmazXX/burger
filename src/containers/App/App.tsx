@@ -1,87 +1,111 @@
 import React, { useState } from "react";
-import { Ingredient } from "../../types";
+import { IIngredient } from "../../types";
 import meatImg from "../../assets/meatImg.png";
 import baconImg from "../../assets/baconImg.png";
 import cheeseImg from "../../assets/cheeseImg.png";
 import saladImg from "../../assets/saladImg.png";
 import "./App.css";
-import Burger from "../../components/Burger/Burger";
-import Meat from "../../components/Burger/Meat/Meat";
-import IngredientBtn from "../../components/IngredientsBox/IngredientBtn";
+import IngredientItem from "../../components/IngredientsItem/IngredientItem";
+import Wrapper from "../../components/Wrapper/Wrapper";
+import BurgerItem from "../../components/Burger/Burger";
+import Price from "../../components/Price/Price";
 
-const INGREDIENTS: Ingredient[] = [
+const INGREDIENTS: IIngredient[] = [
   { name: "Meat", price: 80, image: meatImg },
   { name: "Salad", price: 10, image: saladImg },
   { name: "Bacon", price: 60, image: baconImg },
   { name: "Cheese", price: 50, image: cheeseImg },
 ];
 
-interface ingredientsProps {
+interface IngredientProps {
   name: string;
   count: number;
 }
 
 function App() {
-  const [ingredients, setIngredients] = useState<ingredientsProps[]>([
+  const [items, setItems] = useState<IngredientProps[]>([
     { name: "Meat", count: 0 },
     { name: "Salad", count: 0 },
     { name: "Bacon", count: 0 },
     { name: "Cheese", count: 0 },
   ]);
 
-  // const mergeIngredients = () => {
-  //   return INGREDIENTS.map((I) => {
-  //     return {
-  //       ...I,
-  //       count: ingredients.reduce((acc, ingredient) => {
-  //         if (ingredient.name === I.name) {
-  //           acc = ingredient.count;
-  //         }
-  //         return acc;
-  //       }, 0),
-  //     };
-  //   })
-  // }
-
-  // const [newIngredients, setNewIngredients] = useState<any>(
-  //   mergeIngredients()
-  // );
-
-  const addIngredient = (ingredientName: string) => {
-    setIngredients((prev) =>
-      prev.reduce((acc, ingredient) => {
-        if (ingredientName === ingredient.name) {
-          ++ingredient.count;
-        }
-        return acc;
-      }, prev)
+  const addIngredient = (name: string) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.name === name ? { ...item, count: item.count + 1 } : item
+      )
     );
-    console.log(ingredients);
-    // console.log(newIngredients);
+  };
+
+  const deleteIngredient = (name: string) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.name === name
+          ? { ...item, count: item.count ? item.count - 1 : 0 }
+          : item
+      )
+    );
+  };
+
+  const renderComponents = () => {
+    const itemCount: JSX.Element[] = [];
+    for (const value of items) {
+      for (let i = value.count; i > 0; --i) {
+        itemCount.push(<BurgerItem key={value.name + i} name={value.name} />);
+      }
+    }
+    return itemCount;
+  };
+
+  const countPrice = () => {
+    let totalPrice = 30;
+    const itemPrices: { [key: string]: number } = {};
+    INGREDIENTS.forEach((i) => {
+      itemPrices[i.name] = i.price;
+    });
+
+    items.forEach((item) => {
+      totalPrice += item.count * itemPrices[item.name];
+    });
+    return totalPrice;
   };
 
   return (
     <div className="App">
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {INGREDIENTS.map((ing: any) => (
-          <IngredientBtn
-            key={ing.name}
-            name={ing.name}
-            image={ing.image}
-            price={ing.price}
-            count={ingredients.reduce((acc, i) => {
-              if (ing.name === i.name) {
-                acc = i.count;
-              }
-              return acc;
-            }, 0)}
-            addIngredient={addIngredient}
-          />
-        ))}
-      </div>
-      <Burger>
-        <Meat />
-      </Burger>
+      <Wrapper>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+          }}
+        >
+          {items.map((ing: IngredientProps) => {
+            return (
+              <IngredientItem
+                key={ing.name + ing.name}
+                name={ing.name}
+                count={ing.count}
+                image={INGREDIENTS.reduce((acc, i) => {
+                  if (ing.name === i.name) {
+                    acc = i.image;
+                  }
+                  return acc;
+                }, "")}
+                addIngredient={addIngredient}
+                deleteIngredient={deleteIngredient}
+              />
+            );
+          })}
+        </div>
+        <Price total={countPrice()} />
+      </Wrapper>
+      <Wrapper>
+        <BurgerItem name="breadTop" />
+        {renderComponents()}
+        <BurgerItem name="breadBottom" />
+      </Wrapper>
     </div>
   );
 }
