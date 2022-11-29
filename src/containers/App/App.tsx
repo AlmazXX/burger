@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { IIngredient } from "../../types";
-import meatImg from "../../assets/meatImg.png";
+import { useCallback, useState } from "react";
 import baconImg from "../../assets/baconImg.png";
 import cheeseImg from "../../assets/cheeseImg.png";
+import meatImg from "../../assets/meatImg.png";
 import saladImg from "../../assets/saladImg.png";
-import "./App.css";
-import IngredientItem from "../../components/IngredientsItem/IngredientItem";
-import Wrapper from "../../components/Wrapper/Wrapper";
 import BurgerItem from "../../components/Burger/Burger";
+import IngredientItem from "../../components/IngredientsItem/IngredientItem";
 import Price from "../../components/Price/Price";
+import Wrapper from "../../components/Wrapper/Wrapper";
+import { IIngredient } from "../../types";
+import "./App.css";
 
 const INGREDIENTS: IIngredient[] = [
   { name: "Meat", price: 80, image: meatImg },
@@ -48,28 +48,29 @@ function App() {
     );
   };
 
-  const renderComponents = () => {
-    const itemCount: JSX.Element[] = [];
-    for (const value of items) {
-      for (let i = value.count; i > 0; --i) {
-        itemCount.push(<BurgerItem key={value.name + i} name={value.name} />);
+  const renderComponents = useCallback(() => {
+    return items.reduce((acc: JSX.Element[], item) => {
+      for (let i = item.count; i > 0; --i) {
+        acc.push(<BurgerItem key={item.name + i} name={item.name} />);
       }
-    }
-    return itemCount;
-  };
+      return acc;
+    }, []);
+  }, [items]);
 
-  const countPrice = () => {
-    let totalPrice = 30;
-    const itemPrices: { [key: string]: number } = {};
-    INGREDIENTS.forEach((i) => {
-      itemPrices[i.name] = i.price;
-    });
+  const countPrice = useCallback(() => {
+    const itemPrices = INGREDIENTS.reduce(
+      (acc: { [key: string]: number }, i) => {
+        acc[i.name] = i.price;
+        return acc;
+      },
+      {}
+    );
 
-    items.forEach((item) => {
-      totalPrice += item.count * itemPrices[item.name];
-    });
-    return totalPrice;
-  };
+    return items.reduce(
+      (acc, item) => (acc += item.count * itemPrices[item.name]),
+      30
+    );
+  }, [items]);
 
   return (
     <div className="App">
@@ -81,18 +82,13 @@ function App() {
             gap: "10px",
           }}
         >
-          {items.map((ing: IngredientProps) => {
+          {INGREDIENTS.map((ing: IIngredient) => {
             return (
               <IngredientItem
                 key={ing.name + ing.name}
                 name={ing.name}
-                count={ing.count}
-                image={INGREDIENTS.reduce((acc, i) => {
-                  if (ing.name === i.name) {
-                    acc = i.image;
-                  }
-                  return acc;
-                }, "")}
+                count={items.find((i) => i.name === ing.name)!.count}
+                image={ing.image}
                 addIngredient={addIngredient}
                 deleteIngredient={deleteIngredient}
               />
