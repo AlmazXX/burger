@@ -1,9 +1,7 @@
-import React, { ReactNode } from "react";
-import './Wrapper.css';
+import React from "react";
+import "./Wrapper.css";
 
-interface Props extends React.PropsWithChildren {}
-
-const Wrapper: React.FC<Props> = ({ children }) => {
+const Wrapper: React.FC<React.PropsWithChildren> = ({ children }) => {
   return <div className="Wrapper">{children}</div>;
 };
 
