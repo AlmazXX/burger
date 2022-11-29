@@ -6,36 +6,27 @@ interface Props {
 }
 
 const BurgerItem: React.FC<Props> = ({ name }) => {
-  let item = null;
-
   switch (name) {
     case "breadBottom":
-      item = <div className="BreadBottom"></div>;
-      break;
+      return <div className="BreadBottom"></div>;
     case "breadTop":
-      item = (
+      return (
         <div className="BreadTop">
           <div className="Seeds1"></div>
           <div className="Seeds2"></div>
         </div>
       );
-      break;
     case "Meat":
-      item = <div className="Meat"></div>;
-      break;
+      return <div className="Meat"></div>;
     case "Salad":
-      item = <div className="Salad"></div>;
-      break;
+      return <div className="Salad"></div>;
     case "Cheese":
-      item = <div className="Cheese"></div>;
-      break;
+      return <div className="Cheese"></div>;
     case "Bacon":
-      item = <div className="Bacon"></div>;
-      break;
+      return <div className="Bacon"></div>;
     default:
-      item = null;
+      return null;
   }
-  return item;
 };
 
 export default BurgerItem;
